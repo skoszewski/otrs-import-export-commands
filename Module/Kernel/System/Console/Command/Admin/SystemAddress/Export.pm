@@ -15,6 +15,7 @@ use base qw(Kernel::System::Console::ExportCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::SystemAddress',
+    'Kernel::System::Queue',
 );
 
 sub Configure {
@@ -22,8 +23,10 @@ sub Configure {
 
     $Self->{ColumnNames} = [
         "Name",
-        "Valid",
+        "Realname",
+        "Queue",
         "Comment",
+        "Valid",
     ];
 
     $Self->{ObjectClass} = 'Kernel::System::SystemAddress';
@@ -44,11 +47,17 @@ sub ObjectGet {
 
     my %Object = $Self->{DataObject}->SystemAddressGet( %Param );
 
+    my $Valid = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $Object{ValidID} ) || "valid";
+
+    my $Queue = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup( QueueID => $Object{QueueID} ) || "Raw";
+
     # return a list reference
     return [
         $Object{Name},
-        $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $Object{ValidID} ),
+        $Object{Realname},
+        $Queue,
         $Object{Comment},
+        $Valid,
     ];
 }
 

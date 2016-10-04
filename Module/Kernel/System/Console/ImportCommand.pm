@@ -11,12 +11,15 @@ package Kernel::System::Console::ImportCommand;
 use strict;
 use warnings;
 
+use Text::CSV;
+
 use base qw(Kernel::System::Console::BaseCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::CSV',
     'Kernel::System::Valid',
+    'Kernel::System::Cache',
 );
 
 =head1 NAME
@@ -88,6 +91,36 @@ sub PreRun {
     return;
 }
 
+=item ObjectProperty()
+
+Default method which should be overriden.
+
+=cut
+
+sub ObjectProperty {
+    return;
+}
+
+=item ObjectAdd()
+
+Default method which should be overriden.
+
+=cut
+
+sub ObjectAdd {
+    return 0;
+}
+
+=item ObjectUpdate()
+
+Default method which should be overriden.
+
+=cut
+
+sub ObjectUpdate {
+    return 0;
+}
+
 =item Run()
 
 Common code for all export commands.
@@ -136,9 +169,18 @@ sub Run {
             }
 
             $NewObject{UserID} = 1;
+            my $Success;
+            $NewObject{ID} = $Self->{ObjectList}->{$NewObject{Name}};
 
-            # add object
-            my $Success = $Self->ObjectAdd( %NewObject );
+            if ( $NewObject{Name} ) {
+                if ( $NewObject{ID} ) {
+                    # update object if alread exists
+                    $Success = $Self->ObjectUpdate( %NewObject );
+                } else {
+                    # add object a new object
+                    $Success = $Self->ObjectAdd( %NewObject );
+                }
+            }
 
             # error handling
             if ( !$Success ) {
@@ -146,11 +188,27 @@ sub Run {
                 return $Self->ExitCodeError();
             }
 
-            $Self->Print("Added $Self->{ObjectName} \"$NewObject{Name}\".\n"); 
+            if ( $NewObject{ID} ) {
+                $Self->Print("Updated $Self->{ObjectName} \"$NewObject{Name}\".\n");
+            } else {
+                $Self->Print("Added $Self->{ObjectName} \"$NewObject{Name}\".\n");
+            }
+        }
+    }
+
+    if ( $Self->{CacheType} ) {
+        # Delete cached objects before continuing
+        my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+        $Self->Print("<yellow>Deleting $Self->{CacheType} cache...</yellow>\n");
+
+        if ( !$CacheObject->CleanUp( Type => $Self->{CacheType} ) ) {
+            $Self->ExitCodeError();
         }
     }
 
     $Self->Print("<green>Done.</green>\n");
+
     return $Self->ExitCodeOk();
 }
 

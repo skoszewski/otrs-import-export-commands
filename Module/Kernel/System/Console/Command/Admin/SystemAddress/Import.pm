@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Console::Command::Admin::Group::Import;
+package Kernel::System::Console::Command::Admin::SystemAddress::Import;
 
 use strict;
 use warnings;
@@ -15,7 +15,7 @@ use base qw(Kernel::System::Console::ImportCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::Valid',
-    'Kernel::System::Group',
+    'Kernel::System::SystemAddress',
 );
 
 =item Configure()
@@ -27,14 +27,14 @@ Configure object specific properties.
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::Group';
-    $Self->{CacheType} = 'Group';
+    $Self->{ObjectClass} = 'Kernel::System::SystemAddress';
+    $Self->{CacheType} = 'SystemAddress';
 
     $Self->SUPER::Configure();
 
-    my %ReversedGroupList = reverse $Self->{DataObject}->GroupList( Valid => 0 );
-    $Self->{ObjectList} = \%ReversedGroupList;
-    
+    my %ReversedSystemAddressList = reverse $Self->{DataObject}->SystemAddressList( Valid => 0 );
+    $Self->{ObjectList} = \%ReversedSystemAddressList;
+
     return;
 }
 
@@ -49,9 +49,14 @@ sub ObjectProperty {
 
     if ( $ColumnName =~ m/^name$/i ) {          # Name
         return ( 'Name', $ColumnText );
+    } elsif ( $ColumnName =~ m/^realname$/i ) {   # Realname
+        return ( 'Realname', $ColumnText );
     } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
         my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
-        return ( 'ValidID', $ValidID || 1);
+        return ( 'ValidID', $ValidID || 1 );
+    } elsif ( $ColumnName =~ m/^queue$/i ) {    # Queue
+        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup( Queue => $ColumnText );
+        return ( 'QueueID', $QueueID || 1 );
     } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
         return ( 'Comment', $ColumnText );
     }
@@ -68,13 +73,19 @@ Adds a new object
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->GroupAdd( %NewObject );
+    return $Self->{DataObject}->SystemAddressAdd( %NewObject );
 }
 
-sub ObjectUpdate {
-    my ( $Self, %NewObject ) = @_;
+=item ObjectUpdate()
 
-    return $Self->{DataObject}->GroupUpdate( %NewObject );
+Updates the existing object
+
+=cut
+
+sub ObjectUpdate {
+    my ( $Self, %UpdatedObject ) = @_;
+
+    return $Self->{DataObject}->SystemAddressUpdate( %UpdatedObject );
 }
 
 1;
