@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_package version="1.0">
+    <Name>OTRSImportExportCommands</Name>
+    <Version>1.0.0</Version>
+    <Framework>6.0.x</Framework>
+    <Framework>5.0.x</Framework>
+    <Vendor>Skanska S.A.</Vendor>
+    <URL>http://www.skanska.pl</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description lang="en">Export and Import commands which help moving OTRS configuration objects from an instance to another instance.</Description>
+    <Filelist>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Group/Export.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Group/Import.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Queue/Export.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Queue/Import.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Service/Export.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/Service/Import.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/SystemAddress/Export.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/ExportCommand.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/ImportCommand.pm"/>
+    </Filelist>
+</otrs_package>
