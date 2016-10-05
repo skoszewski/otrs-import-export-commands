@@ -18,17 +18,18 @@ our @ObjectDependencies = (
     'Kernel::System::SystemAddress',
 );
 
-=item Configure()
-
-Configure object specific properties.
-
-=cut
-
 sub Configure {
     my ( $Self, %Param ) = @_;
 
     $Self->{ObjectClass} = 'Kernel::System::SystemAddress';
     $Self->{CacheType} = 'SystemAddress';
+    $Self->{PropertyNames} = [
+        "Name",
+        "Realname",
+        "ValidID",
+        "QueueID",
+        "Comment",
+    ];
 
     $Self->SUPER::Configure();
 
@@ -38,11 +39,13 @@ sub Configure {
     return;
 }
 
-=item ObjectProperty()
+sub ObjectGet {
+    my ( $Self, $ObjectId ) = @_;
 
-Resolves object property name from spreadsheet column name and assigns a value.
-
-=cut
+    return $Self->{DataObject}->SystemAddressGet(
+        ID => $ObjectId
+    );
+}
 
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
@@ -64,23 +67,11 @@ sub ObjectProperty {
     return;
 }
 
-=item ObjectAdd()
-
-Adds a new object
-
-=cut
-
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
     return $Self->{DataObject}->SystemAddressAdd( %NewObject );
 }
-
-=item ObjectUpdate()
-
-Updates the existing object
-
-=cut
 
 sub ObjectUpdate {
     my ( $Self, %UpdatedObject ) = @_;
