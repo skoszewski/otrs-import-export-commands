@@ -40,7 +40,7 @@ Base class for object import commands.
 
 Common configuration:
 
-=over 2
+=over 4
 
 =item * Description
 
@@ -48,7 +48,46 @@ Common configuration:
 
 =back
 
-Requires C<< $Self->{ObjectClass} >> to be defined in the parent class.
+The base class implementation of C<Configure()> method expects to be overriden
+and called from a child method using C<< $Self->SUPER::Configure() >>.
+
+Several properties for the C<$Self> object must be also defined.
+
+=over 4
+
+=item * ObjectClass
+
+=item * CacheType
+
+=item * PropertyNames
+
+=item * ObjectList
+
+=back
+
+The C<ObjectList> property must be defined B<AFTER> base class method
+C<Configure()> has been called.
+
+The example implementation for C<Kernel::System::Group> can be found below:
+
+    sub Configure {
+        my ( $Self, %Param ) = @_;
+
+        $Self->{ObjectClass} = 'Kernel::System::Group';
+        $Self->{CacheType} = 'Group';
+        $Self->{PropertyNames} = [
+            "Name",
+            "ValidID",
+            "Comment",
+        ];
+
+        $Self->SUPER::Configure();
+
+        my %ReversedGroupList = reverse $Self->{DataObject}->GroupList( Valid => 0 );
+        $Self->{ObjectList} = \%ReversedGroupList;
+        
+        return;
+    }
 
 =cut
 
@@ -91,9 +130,45 @@ sub PreRun {
     return;
 }
 
+=item ObjectGet()
+
+Default method which should be overriden as the example below:
+
+    sub ObjectGet {
+        my ( $Self, $ObjectId ) = @_;
+
+        return $Self->{DataObject}->GroupGet(
+            ID => $ObjectId
+        );
+    }
+
+=cut
+
+sub ObjectGet {
+    return;
+}
+
 =item ObjectProperty()
 
-Default method which should be overriden.
+Default method which should be overriden. Returns a two element list
+with a property name and value. Returns nothing if column name is unknown.
+
+Example:
+
+    sub ObjectProperty {
+        my ( $Self, $ColumnName, $ColumnText ) = @_;
+
+        if ( $ColumnName =~ m/^name$/i ) {          # Name
+            return ( 'Name', $ColumnText );
+        } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
+            my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
+            return ( 'ValidID', $ValidID || 1 );
+        } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
+            return ( 'Comment', $ColumnText || '' );
+        }
+
+        return;
+    }
 
 =cut
 
@@ -105,6 +180,14 @@ sub ObjectProperty {
 
 Default method which should be overriden.
 
+Example:
+
+    sub ObjectAdd {
+        my ( $Self, %NewObject ) = @_;
+
+        return $Self->{DataObject}->GroupAdd( %NewObject );
+    }
+
 =cut
 
 sub ObjectAdd {
@@ -115,10 +198,37 @@ sub ObjectAdd {
 
 Default method which should be overriden.
 
+Example:
+
+    sub ObjectUpdate {
+        my ( $Self, %NewObject ) = @_;
+
+        return $Self->{DataObject}->GroupUpdate( %NewObject );
+    }
+
 =cut
 
 sub ObjectUpdate {
     return 0;
+}
+
+=item ObjectCompare()
+
+A method which compares selected object properties. It may be overridden
+if custom object comparision alghoritm is required.
+
+=cut
+
+sub ObjectCompare {
+    my ( $Self, $OldObject, $NewObject ) = @_;
+
+    foreach my $Key ( @{ $Self->{PropertyNames} } ) {
+        # return false if any property does not match or does not exist
+        return if ! exists $OldObject->{$Key} || ! exists $NewObject->{$Key};
+        return if $OldObject->{$Key} ne $NewObject->{$Key};
+    }
+
+    return 1;       # Objects are equal
 }
 
 =item Run()
@@ -165,20 +275,39 @@ sub Run {
 
                 next ROW if !$Key;
 
-                $NewObject{$Key} = $Value if $Value;
+                $NewObject{$Key} = $Value || '';
             }
 
-            $NewObject{UserID} = 1;
-            my $Success;
-            $NewObject{ID} = $Self->{ObjectList}->{$NewObject{Name}};
+            $NewObject{UserID} = 1;     # Add UserID which is mandatory in most calls.
 
-            if ( $NewObject{Name} ) {
-                if ( $NewObject{ID} ) {
-                    # update object if alread exists
+            # Skip to the next row if "Name" was not defined
+            next ROW if !$NewObject{Name};
+
+            my ($Id, $Success);
+            
+            # check if object of the same name already exists
+            $Id = $Self->{ObjectList}->{$NewObject{Name}};
+
+            if ( $Id ) {
+                # update object if alread exists
+                my %OldObject = $Self->ObjectGet( $Id );
+                if ( !$Self->ObjectCompare( \%OldObject, \%NewObject ) ) {
+                    $NewObject{ID} = $Id;
                     $Success = $Self->ObjectUpdate( %NewObject );
+                    
+                    if ( $Success ) {
+                       $Self->Print("Updated $Self->{ObjectName} \"$NewObject{Name}\".\n"); 
+                    }
                 } else {
-                    # add object a new object
-                    $Success = $Self->ObjectAdd( %NewObject );
+                   $Self->Print("$Self->{ObjectName} \"$NewObject{Name}\" is up to date.\n"); 
+                   $Success = 1;
+                }
+            } else {
+                # add object a new object
+                $Success = $Self->ObjectAdd( %NewObject );
+
+                if ( $Success ) {
+                    $Self->Print("Added $Self->{ObjectName} \"$NewObject{Name}\".\n");
                 }
             }
 
@@ -186,12 +315,6 @@ sub Run {
             if ( !$Success ) {
                 $Self->PrintError("Can't create $Self->{ObjectName} $NewObject{Name}.\n");
                 return $Self->ExitCodeError();
-            }
-
-            if ( $NewObject{ID} ) {
-                $Self->Print("Updated $Self->{ObjectName} \"$NewObject{Name}\".\n");
-            } else {
-                $Self->Print("Added $Self->{ObjectName} \"$NewObject{Name}\".\n");
             }
         }
     }
