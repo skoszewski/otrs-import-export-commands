@@ -323,10 +323,29 @@ sub Run {
         # Delete cached objects before continuing
         my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
-        $Self->Print("<yellow>Deleting $Self->{CacheType} cache...</yellow>\n");
+        my $CacheType = $Self->{CacheType};
 
-        if ( !$CacheObject->CleanUp( Type => $Self->{CacheType} ) ) {
-            $Self->ExitCodeError();
+        if ( ! ref($CacheType) ) {
+            # not a reference, a scalar
+            my @Temp = ( $CacheType );
+            $CacheType = \@Temp;
+        } elsif ( ref($CacheType) eq 'SCALAR' ) {
+            # a reference to a scalar
+            my @Temp = ( $$CacheType );
+            $CacheType = \@Temp;
+        } elsif ( ref($CacheType) ne 'ARRAY' ) {
+            # not an array reference, stop with an error
+            $Self->Print("<red>Internal error occured, unknown cache type!</red>");
+            return $Self->ExitCodeError();
+        }
+
+        # clean specified cache types
+        foreach my $Type ( @$CacheType ) {
+            $Self->Print("<yellow>Deleting $Type cache...</yellow>\n");
+
+            if ( !$CacheObject->CleanUp( Type => $Type ) ) {
+                $Self->ExitCodeError();
+            }
         }
     }
 
