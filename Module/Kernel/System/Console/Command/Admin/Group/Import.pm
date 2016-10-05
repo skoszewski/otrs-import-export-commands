@@ -29,6 +29,11 @@ sub Configure {
 
     $Self->{ObjectClass} = 'Kernel::System::Group';
     $Self->{CacheType} = 'Group';
+    $Self->{PropertyNames} = [
+        "Name",
+        "ValidID",
+        "Comment",
+    ];
 
     $Self->SUPER::Configure();
 
@@ -36,6 +41,20 @@ sub Configure {
     $Self->{ObjectList} = \%ReversedGroupList;
     
     return;
+}
+
+=item ObjectGet()
+
+Returns current object. Takes Name as parameter.
+
+=cut
+
+sub ObjectGet {
+    my ( $Self, $ObjectId ) = @_;
+
+    return $Self->{DataObject}->GroupGet(
+        ID => $ObjectId
+    );
 }
 
 =item ObjectProperty()
@@ -51,9 +70,9 @@ sub ObjectProperty {
         return ( 'Name', $ColumnText );
     } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
         my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
-        return ( 'ValidID', $ValidID || 1);
+        return ( 'ValidID', $ValidID || 1 );
     } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
-        return ( 'Comment', $ColumnText );
+        return ( 'Comment', $ColumnText || '' );
     }
 
     return;
