@@ -97,7 +97,15 @@ sub Run {
     my @Data;
     my %Objects = $Self->ObjectList();
 
-    foreach my $Id (sort keys %Objects) {
+    # Export should sort objects using Name not Id
+    my %ReversedList = reverse %Objects;
+    my @ObjectIds;
+
+    foreach my $Name (sort keys %ReversedList) {
+        push @ObjectIds, $ReversedList{$Name};
+    }
+
+    foreach my $Id ( @ObjectIds ) {
 
         my $ObjectData = $Self->ObjectGet( $Id );
 
