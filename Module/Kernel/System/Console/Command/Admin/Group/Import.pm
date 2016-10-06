@@ -18,12 +18,6 @@ our @ObjectDependencies = (
     'Kernel::System::Group',
 );
 
-=item Configure()
-
-Configure object specific properties.
-
-=cut
-
 sub Configure {
     my ( $Self, %Param ) = @_;
 
@@ -43,12 +37,6 @@ sub Configure {
     return;
 }
 
-=item ObjectGet()
-
-Returns current object. Takes Name as parameter.
-
-=cut
-
 sub ObjectGet {
     my ( $Self, $ObjectId ) = @_;
 
@@ -56,12 +44,6 @@ sub ObjectGet {
         ID => $ObjectId
     );
 }
-
-=item ObjectProperty()
-
-Resolves object property name from spreadsheet column name and assigns a value.
-
-=cut
 
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
@@ -77,12 +59,6 @@ sub ObjectProperty {
 
     return;
 }
-
-=item ObjectAdd()
-
-Adds a new object.
-
-=cut
 
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
