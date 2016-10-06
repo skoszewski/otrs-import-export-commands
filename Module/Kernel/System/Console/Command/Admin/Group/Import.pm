@@ -66,12 +66,6 @@ sub ObjectAdd {
     return $Self->{DataObject}->GroupAdd( %NewObject );
 }
 
-=item ObjectUpdate()
-
-Updates an object.
-
-=cut
-
 sub ObjectUpdate {
     my ( $Self, %NewObject ) = @_;
 
