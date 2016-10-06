@@ -43,9 +43,9 @@ sub ObjectList {
 };
 
 sub ObjectGet {
-    my ( $Self, %Param ) = @_;
+    my ( $Self, $ObjectId ) = @_;
 
-    my %Object = $Self->{DataObject}->SystemAddressGet( %Param );
+    my %Object = $Self->{DataObject}->SystemAddressGet( ID => $ObjectId );
 
     my $Valid = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $Object{ValidID} ) || "valid";
 

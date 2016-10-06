@@ -77,7 +77,7 @@ overriden in parent classes.
 
 =item * ObjectList() - Returns a hash with B<Id>, B<Name> pairs.
 
-=item * ObjectGet() - Returns a list with object properties.
+=item * ObjectGet() - Returns a hash with object properties.
 
 Takes a hash as an argument with I<ID> as the only key. The first list item
 should be object name.
@@ -99,7 +99,7 @@ sub Run {
 
     foreach my $Id (sort keys %Objects) {
 
-        my $ObjectData = $Self->ObjectGet( ID => $Id );
+        my $ObjectData = $Self->ObjectGet( $Id );
 
         $Self->Print("$Self->{ObjectName}: <green>@$ObjectData[0]</green>\n");
         

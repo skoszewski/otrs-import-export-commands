@@ -40,9 +40,9 @@ sub ObjectList {
 }
 
 sub ObjectGet {
-    my ( $Self, %Param ) = @_;
+    my ( $Self, $ObjectId ) = @_;
 
-    my %Object = $Self->{DataObject}->GroupGet( %Param );
+    my %Object = $Self->{DataObject}->GroupGet( ID => $ObjectId );
 
     # return a list reference
     return [
