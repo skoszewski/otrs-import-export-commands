@@ -101,8 +101,8 @@ sub Run {
     my %ReversedList = reverse %Objects;
     my @ObjectIds;
 
-    foreach my $Name (sort keys %ReversedList) {
-        push @ObjectIds, $ReversedList{$Name};
+    foreach ( sort { lc $a cmp lc $b } keys %ReversedList ) {
+        push @ObjectIds, $ReversedList{$_};
     }
 
     foreach my $Id ( @ObjectIds ) {
