@@ -15,6 +15,7 @@ use base qw(Kernel::System::Console::ExportCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::Queue',
+    'Kernel::System::DB',
 );
 
 sub Configure {
@@ -29,15 +30,27 @@ sub Configure {
         "Update Time",
         "Solution Time",
         "Unlock Timeout",
-        "System Address Name",
+        "System Address",
         "Salutation",
         "Signature",
+        "Follow Up",
         "Comment",
     ];
 
     $Self->{ObjectClass} = 'Kernel::System::Queue';
 
     $Self->SUPER::Configure();
+
+    # create a hash with follow-up option names
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    return if !$DBObject->Prepare(
+        SQL => 'SELECT id, name FROM follow_up_possible',
+    );
+    
+    while ( my @Row = $DBObject->FetchrowArray() ) {
+        $Self->{FollowUpOptionsList}->{ $Row[0] } = $Row[1];
+    }
 
     return;
 }
@@ -49,9 +62,9 @@ sub ObjectList {
 }
 
 sub ObjectGet {
-    my ( $Self, %Param ) = @_;
+    my ( $Self, $ObjectId ) = @_;
 
-    my %Object = $Self->{DataObject}->QueueGet( %Param );
+    my %Object = $Self->{DataObject}->QueueGet( ID => $ObjectId );
 
     my $Group = $Kernel::OM->Get('Kernel::System::Group')->GroupLookup( GroupID => $Object{GroupID} );
 
@@ -67,6 +80,8 @@ sub ObjectGet {
         ID => $Object{SignatureID}
     );
 
+    my $FollowUpId = $Self->{FollowUpOptionsList}->{ $Object{FollowUpID} };
+
     # return a list reference
     return [
         $Object{Name},
@@ -80,6 +95,7 @@ sub ObjectGet {
         $SystemAddressInfo{Name},
         $SalutationInfo{Name},
         $SignatureInfo{Name},
+        $FollowUpId,
         $Object{Comment},
     ];
 }
