@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>ImportExportCommands</Name>
-    <Version>0.9.2</Version>
+    <Version>0.9.3</Version>
     <Framework>6.0.x</Framework>
     <Framework>5.0.x</Framework>
     <Vendor>Skanska S.A.</Vendor>
@@ -16,6 +16,7 @@
         <File Permission="640" Location="Kernel/System/Console/Command/Admin/Service/Export.pm"/>
         <File Permission="640" Location="Kernel/System/Console/Command/Admin/Service/Import.pm"/>
         <File Permission="640" Location="Kernel/System/Console/Command/Admin/SystemAddress/Export.pm"/>
+        <File Permission="640" Location="Kernel/System/Console/Command/Admin/SystemAddress/Import.pm"/>
         <File Permission="640" Location="Kernel/System/Console/ExportCommand.pm"/>
         <File Permission="640" Location="Kernel/System/Console/ImportCommand.pm"/>
     </Filelist>
