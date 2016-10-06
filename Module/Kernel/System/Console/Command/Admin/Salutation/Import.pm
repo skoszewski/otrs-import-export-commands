@@ -12,6 +12,7 @@ use strict;
 use warnings;
 
 use MIME::Base64;
+use Encode;
 
 use base qw(Kernel::System::Console::ImportCommand);
 
@@ -62,7 +63,7 @@ sub ObjectProperty {
     } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
         return ( 'Comment', $ColumnText || '' );
     } elsif ( $ColumnName =~ m/^text$/i ) {  # Comment
-        return ( 'Text', decode_base64( $ColumnText || '' ) );
+        return ( 'Text', Encode::decode_utf8( decode_base64( $ColumnText || '' ) ) );
     }
 
     return;

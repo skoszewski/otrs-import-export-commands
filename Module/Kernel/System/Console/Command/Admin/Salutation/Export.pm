@@ -12,6 +12,7 @@ use strict;
 use warnings;
 
 use MIME::Base64;
+use Encode;
 
 use base qw(Kernel::System::Console::ExportCommand);
 
@@ -55,7 +56,7 @@ sub ObjectGet {
         $Object{ContentType},
         $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $Object{ValidID} ),
         $Object{Comment},
-        encode_base64( $Object{Text}, '' ),
+        encode_base64( Encode::encode_utf8( $Object{Text} ), '' ),
     ];
 }
 
