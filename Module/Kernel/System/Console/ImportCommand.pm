@@ -98,6 +98,8 @@ sub Configure {
 
     $Self->{DataObject} = $Kernel::OM->Get($Self->{ObjectClass});
 
+    $Self->{ObjectIdName} = 'ID' if !$Self->{ObjectIdName}; 
+
     $Self->Description("Imports $Self->{ObjectName}s from a CSV file.");
 
     $Self->AddArgument(
@@ -222,9 +224,23 @@ if custom object comparision alghoritm is required.
 sub ObjectCompare {
     my ( $Self, $OldObject, $NewObject ) = @_;
 
+    KEY:
     foreach my $Key ( @{ $Self->{PropertyNames} } ) {
-        # return false if any property does not match or does not exist
+
+        # objects are different if the key is missing in old or new object
         return if ! exists $OldObject->{$Key} || ! exists $NewObject->{$Key};
+
+        # also check for undef key values
+        return if ! defined $OldObject->{$Key} || ! defined $NewObject->{$Key};
+
+        # continue if BOTH properties are empty or equal
+        # that means '0' is equal to ''
+        next KEY if !$OldObject->{$Key} && !$NewObject->{$Key};
+        
+        # objects are different if only one property is false (zero or empty string)
+        return if !$OldObject->{$Key} || !$NewObject->{$Key};
+        
+        # return false if property values are different
         return if $OldObject->{$Key} ne $NewObject->{$Key};
     }
 
@@ -292,14 +308,14 @@ sub Run {
                 # update object if alread exists
                 my %OldObject = $Self->ObjectGet( $Id );
                 if ( !$Self->ObjectCompare( \%OldObject, \%NewObject ) ) {
-                    $NewObject{ID} = $Id;
+                    $NewObject{ $Self->{ObjectIdName} } = $Id;
                     $Success = $Self->ObjectUpdate( %NewObject );
                     
                     if ( $Success ) {
-                       $Self->Print("Updated $Self->{ObjectName} \"$NewObject{Name}\".\n"); 
+                       $Self->Print("Updated $Self->{ObjectName} <green>$NewObject{Name}</green>.\n"); 
                     }
                 } else {
-                   $Self->Print("$Self->{ObjectName} \"$NewObject{Name}\" is up to date.\n"); 
+                   $Self->Print("$Self->{ObjectName} <green>$NewObject{Name}</green> is up to date.\n"); 
                    $Success = 1;
                 }
             } else {
