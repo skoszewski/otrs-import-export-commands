@@ -53,16 +53,16 @@ sub ObjectGet {
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    if ( $ColumnName =~ m/^name$/i ) {          # Name
+    if ( $ColumnName =~ m/^name$/i ) {                  # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^content *type$/i ) {  # Content Type
+    } elsif ( $ColumnName =~ m/^content *type$/i ) {    # Content Type
         return ( 'ContentType', $ColumnText || '' );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
+    } elsif ( $ColumnName =~ m/^valid$/i ) {            # Valid
         my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
         return ( 'ValidID', $ValidID || 1 );
-    } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
+    } elsif ( $ColumnName =~ m/^comment$/i ) {          # Comment
         return ( 'Comment', $ColumnText || '' );
-    } elsif ( $ColumnName =~ m/^text$/i ) {  # Comment
+    } elsif ( $ColumnName =~ m/^text$/i ) {             # Base64 encoded text
         return ( 'Text', Encode::decode_utf8( decode_base64( $ColumnText || '' ) ) );
     }
 
