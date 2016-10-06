@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>ImportExportCommands</Name>
-    <Version>0.9.3</Version>
+    <Version>0.9.4</Version>
     <Framework>6.0.x</Framework>
     <Framework>5.0.x</Framework>
     <Vendor>Skanska S.A.</Vendor>
