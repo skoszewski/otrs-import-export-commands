@@ -40,13 +40,12 @@ sub ObjectList {
 };
 
 sub ObjectGet {
-    my ( $Self, %Param ) = @_;
+    my ( $Self, $ObjectId ) = @_;
 
-    $Param{UserID} = 1;
-    $Param{ServiceID} = $Param{ID};
-    delete $Param{ID};
-
-    my %Object = $Self->{DataObject}->ServiceGet( %Param );
+    my %Object = $Self->{DataObject}->ServiceGet(
+        ServiceID => $ObjectId,
+        UserID    => 1,
+    );
 
     # return a list reference
     return [

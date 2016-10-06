@@ -9,12 +9,21 @@ use Text::CSV;
 
 our @ObjectDependencies = (
     'Kernel::System::Service',
+    'Kernel::System::Valid',
 );
 
 sub Configure {
     my ( $Self, %Param ) = @_;
 
     $Self->{ObjectClass} = 'Kernel::System::Service';
+    $Self->{CacheType} = 'Service';
+    $Self->{PropertyNames} = [
+        "Name",
+        "ValidID",
+        "Comment",
+    ];
+
+    $Self->SUPER::Configure();
 
     my %ReversedServiceList = reverse $Self->{DataObject}->ServiceList( UserID => 1 );
     $Self->{ObjectList} = \%ReversedServiceList;
@@ -22,38 +31,76 @@ sub Configure {
     return;
 }
 
-=item ObjectProperty()
+sub ObjectGet {
+    my ( $Self, $ObjectId ) = @_;
 
-Resolves object property name from spreadsheet column name and assigns a value.
-
-=cut
+    return $Self->{DataObject}->ServiceGet(
+        ServiceID => $ObjectId,
+        UserID => 1,
+    );
+}
 
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
     if ( $ColumnName =~ m/^name$/i ) {          # Name
-        # check if the specified Service already exists and if yes skip it
-        return if $Self->{ObjectList}->{$ColumnText};
-
         return ( 'Name', $ColumnText );
     } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
         my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
         return ( 'ValidID', $ValidID || 1);
     } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
-        return ( 'Comment', $ColumnText );
+        return ( 'Comment', $ColumnText || '' );
     }
 }
 
-=item ObjectAdd()
+sub SplitServiceName {
+    my ( $Self, $FullServiceName ) = @_;
 
-Adds a new object
+    if ( $FullServiceName =~ m/::/ ) {
+        my @Parts = split '::', $FullServiceName;
+        my $Service = pop @Parts;
+        my $ParentService = join '::', @Parts;
+        my $ParentServiceID = $Self->{DataObject}->ServiceLookup( Name => $ParentService );
+        if (!$ParentServiceID) {
+            $Self->Print("<red>Specified sub-service name '$ParentService' does not exist!</red>.\n");
+            return (undef, undef);
+        }
 
-=cut
+        return ( $ParentServiceID, $Service );
+    } else {
+        return ( 0, $FullServiceName );
+    }
+}
 
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
+    my ( $ParentID, $Name ) = $Self->SplitServiceName( $NewObject{Name} );
+
+    # Check if service name is correct
+    return if !$Name;
+    
+    # Modify NewObject properites
+    $NewObject{ParentID} = $ParentID;
+    $NewObject{Name} = $Name;
+
+    # Add service
     return $Self->{DataObject}->ServiceAdd( %NewObject );
+}
+
+sub ObjectUpdate {
+    my ( $Self, %NewObject ) = @_;
+
+    my ( $ParentID, $Name ) = $Self->SplitServiceName( $NewObject{Name} );
+
+    # Check if service name is correct
+    return if !$Name;
+    
+    # Modify NewObject properites
+    $NewObject{ParentID} = $ParentID;
+    $NewObject{Name} = $Name;
+
+    return $Self->{DataObject}->ServiceUpdate( %NewObject );
 }
 
 1;
