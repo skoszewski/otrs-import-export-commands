@@ -15,12 +15,12 @@ use vars (qw($Self));
 
 my $CommandObject = $Kernel::OM->Get('Kernel::System::Console::Command::Admin::Signature::Import');
 
-my ($Result, $ExitCode);
+my ( $Result, $ExitCode );
 {
     local *STDOUT;
     open STDOUT, '>:encoding(UTF-8)', \$Result;
     $ExitCode = $CommandObject->Execute();
-    $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput(\$Result);
+    $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$Result );
 }
 
 1;

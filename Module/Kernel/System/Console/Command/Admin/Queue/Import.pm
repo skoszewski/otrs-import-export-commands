@@ -26,8 +26,8 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::Queue';
-    $Self->{CacheType} = "Queue";
+    $Self->{ObjectClass}   = 'Kernel::System::Queue';
+    $Self->{CacheType}     = "Queue";
     $Self->{PropertyNames} = [
         "Name",
         "ValidID",
@@ -44,7 +44,7 @@ sub Configure {
         "Comment",
     ];
 
-    $Self->{ObjectIdName} = "QueueID";  # Custom ID name
+    $Self->{ObjectIdName} = "QueueID";    # Custom ID name
 
     $Self->SUPER::Configure();
 
@@ -54,7 +54,7 @@ sub Configure {
     return if !$DBObject->Prepare(
         SQL => 'SELECT id, name FROM follow_up_possible',
     );
-    
+
     my %FollowUpOptionsList;
 
     while ( my @Row = $DBObject->FetchrowArray() ) {
@@ -82,88 +82,101 @@ sub ObjectGet {
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    # Name, ValidID, GroupID, Calendar, FirstResponseTime, UpdateTime, SolutionTime, UnlockTimeout, SystemAddressID, SalutationID, SignatureID, FollowUpID, Comment
+# Name, ValidID, GroupID, Calendar, FirstResponseTime, UpdateTime, SolutionTime, UnlockTimeout, SystemAddressID, SalutationID, SignatureID, FollowUpID, Comment
 
-    if ( $ColumnName =~ m/^name$/i ) {                          # Name
+    if ( $ColumnName =~ m/^name$/i ) {    # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {                    # Valid
+    }
+    elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
 
-        my %ValidList = reverse $Kernel::OM->Get('Kernel::System::Valid')->ValidList(); 
-        my $ValidID = $ValidList{$ColumnText};
-        if (!$ValidID) {
+        my %ValidList = reverse $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
+        my $ValidID   = $ValidList{$ColumnText};
+        if ( !$ValidID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid name.</red>\n");
         }
         return ( 'ValidID', $ValidID || 1 );
 
-    } elsif ( $ColumnName =~ m/^group$/i ) {                    # Group
+    }
+    elsif ( $ColumnName =~ m/^group$/i ) {    # Group
 
         my %GroupList = reverse $Kernel::OM->Get('Kernel::System::Group')->GroupList();
-        my $GroupID = $GroupList{$ColumnText};
-        if (!$GroupID) {
+        my $GroupID   = $GroupList{$ColumnText};
+        if ( !$GroupID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Group name.</red>\n");
         }
         return ( 'GroupID', $GroupID || 1 );
 
-    } elsif ( $ColumnName =~ m/^calendar$/i ) {                 # Calendar
+    }
+    elsif ( $ColumnName =~ m/^calendar$/i ) {    # Calendar
 
         return ( 'Calendar', $ColumnText || '' );
 
-    } elsif ( $ColumnName =~ m/^first *response *time$/i ) {    # First Response Time
+    }
+    elsif ( $ColumnName =~ m/^first *response *time$/i ) {    # First Response Time
 
         return ( 'FirstResponseTime', $ColumnText || '' );
 
-    } elsif ( $ColumnName =~ m/^update *time$/i ) {             # Update Time
+    }
+    elsif ( $ColumnName =~ m/^update *time$/i ) {             # Update Time
 
         return ( 'UpdateTime', $ColumnText || '' );
 
-    } elsif ( $ColumnName =~ m/^solution *time$/i ) {           # Solution Time
+    }
+    elsif ( $ColumnName =~ m/^solution *time$/i ) {           # Solution Time
 
         return ( 'SolutionTime', $ColumnText || '' );
 
-    } elsif ( $ColumnName =~ m/^unlock *timeout$/i ) {          # Unlock Timeout
+    }
+    elsif ( $ColumnName =~ m/^unlock *timeout$/i ) {          # Unlock Timeout
 
         return ( 'UnlockTimeout', $ColumnText || '' );
 
-    } elsif ( $ColumnName =~ m/^system *address$/i ) {          # SystemAddress
+    }
+    elsif ( $ColumnName =~ m/^system *address$/i ) {          # SystemAddress
 
         my %SystemAddressList = reverse $Kernel::OM->Get('Kernel::System::SystemAddress')->SystemAddressList();
-        my $SystemAddressID = $SystemAddressList{$ColumnText};
-        if (!$SystemAddressID) {
+        my $SystemAddressID   = $SystemAddressList{$ColumnText};
+        if ( !$SystemAddressID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid SystemAddress name.</red>\n");
         }
         return ( 'SystemAddressID', $SystemAddressID || 1 );
 
-    } elsif ( $ColumnName =~ m/^salutation$/i ) {               # Salutation
+    }
+    elsif ( $ColumnName =~ m/^salutation$/i ) {               # Salutation
 
         my %SalutationList = reverse $Kernel::OM->Get('Kernel::System::Salutation')->SalutationList();
-        my $SalutationID = $SalutationList{$ColumnText};
-        if (!$SalutationID) {
+        my $SalutationID   = $SalutationList{$ColumnText};
+        if ( !$SalutationID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Salutation name.</red>\n");
         }
         return ( 'SalutationID', $SalutationID || 1 );
 
-    } elsif ( $ColumnName =~ m/^signature$/i ) {                # Signature
+    }
+    elsif ( $ColumnName =~ m/^signature$/i ) {                # Signature
 
         my %SignatureList = reverse $Kernel::OM->Get('Kernel::System::Signature')->SignatureList();
-        my $SignatureID = $SignatureList{$ColumnText};
-        if (!$SignatureID) {
+        my $SignatureID   = $SignatureList{$ColumnText};
+        if ( !$SignatureID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Signature name.</red>\n");
         }
         return ( 'SignatureID', $SignatureID || 1 );
 
-    } elsif ( $ColumnName =~ m/^follow *up$/i ) {               # Follow Up
-        
-        my $FollowUpID = $Self->{FollowUpOptionsList}->{ $ColumnText };
-        if (!$FollowUpID) {
+    }
+    elsif ( $ColumnName =~ m/^follow *up$/i ) {               # Follow Up
+
+        my $FollowUpID = $Self->{FollowUpOptionsList}->{$ColumnText};
+        if ( !$FollowUpID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid follow up option name.</red>\n");
         }
         return ( 'FollowUpID', $FollowUpID || 1 );
 
-    } elsif ( $ColumnName =~ m/^comment$/i ) {                  # Comment
+    }
+    elsif ( $ColumnName =~ m/^comment$/i ) {                  # Comment
 
         return ( 'Comment', $ColumnText || '' );
 
-    } else {
+    }
+    else {
         $Self->Print("<red>Unknown column name found: \"$ColumnName\".</red>\n");
     }
 
@@ -173,14 +186,13 @@ sub ObjectProperty {
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->QueueAdd( %NewObject );
+    return $Self->{DataObject}->QueueAdd(%NewObject);
 }
 
 sub ObjectUpdate {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->QueueUpdate( %NewObject );
+    return $Self->{DataObject}->QueueUpdate(%NewObject);
 }
 
 1;
-

@@ -1,3 +1,10 @@
+# --
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
 
 package Kernel::System::Console::Command::Admin::Service::Import;
 
@@ -15,8 +22,8 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::Service';
-    $Self->{CacheType} = 'Service';
+    $Self->{ObjectClass}   = 'Kernel::System::Service';
+    $Self->{CacheType}     = 'Service';
     $Self->{PropertyNames} = [
         "Name",
         "ValidID",
@@ -36,19 +43,21 @@ sub ObjectGet {
 
     return $Self->{DataObject}->ServiceGet(
         ServiceID => $ObjectId,
-        UserID => 1,
+        UserID    => 1,
     );
 }
 
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    if ( $ColumnName =~ m/^name$/i ) {          # Name
+    if ( $ColumnName =~ m/^name$/i ) {    # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
-        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
-        return ( 'ValidID', $ValidID || 1);
-    } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
+    }
+    elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
+        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText );
+        return ( 'ValidID', $ValidID || 1 );
+    }
+    elsif ( $ColumnName =~ m/^comment$/i ) {    # Comment
         return ( 'Comment', $ColumnText || '' );
     }
 }
@@ -57,17 +66,18 @@ sub SplitServiceName {
     my ( $Self, $FullServiceName ) = @_;
 
     if ( $FullServiceName =~ m/::/ ) {
-        my @Parts = split '::', $FullServiceName;
-        my $Service = pop @Parts;
-        my $ParentService = join '::', @Parts;
+        my @Parts           = split '::', $FullServiceName;
+        my $Service         = pop @Parts;
+        my $ParentService   = join '::', @Parts;
         my $ParentServiceID = $Self->{DataObject}->ServiceLookup( Name => $ParentService );
-        if (!$ParentServiceID) {
+        if ( !$ParentServiceID ) {
             $Self->Print("<red>Specified sub-service name '$ParentService' does not exist!</red>.\n");
-            return (undef, undef);
+            return ( undef, undef );
         }
 
         return ( $ParentServiceID, $Service );
-    } else {
+    }
+    else {
         return ( 0, $FullServiceName );
     }
 }
@@ -79,13 +89,13 @@ sub ObjectAdd {
 
     # Check if service name is correct
     return if !$Name;
-    
+
     # Modify NewObject properites
     $NewObject{ParentID} = $ParentID;
-    $NewObject{Name} = $Name;
+    $NewObject{Name}     = $Name;
 
     # Add service
-    return $Self->{DataObject}->ServiceAdd( %NewObject );
+    return $Self->{DataObject}->ServiceAdd(%NewObject);
 }
 
 sub ObjectUpdate {
@@ -95,12 +105,12 @@ sub ObjectUpdate {
 
     # Check if service name is correct
     return if !$Name;
-    
+
     # Modify NewObject properites
     $NewObject{ParentID} = $ParentID;
-    $NewObject{Name} = $Name;
+    $NewObject{Name}     = $Name;
 
-    return $Self->{DataObject}->ServiceUpdate( %NewObject );
+    return $Self->{DataObject}->ServiceUpdate(%NewObject);
 }
 
 1;

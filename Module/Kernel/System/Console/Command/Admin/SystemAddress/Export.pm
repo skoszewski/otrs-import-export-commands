@@ -38,10 +38,10 @@ sub Configure {
 }
 
 sub ObjectList {
-    my ( $Self ) = @_;
+    my ($Self) = @_;
 
     return $Self->{DataObject}->SystemAddressList();
-};
+}
 
 sub ObjectGet {
     my ( $Self, $ObjectId ) = @_;
@@ -63,8 +63,6 @@ sub ObjectGet {
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

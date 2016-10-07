@@ -52,7 +52,7 @@ sub Configure {
     return if !$DBObject->Prepare(
         SQL => 'SELECT id, name FROM follow_up_possible',
     );
-    
+
     while ( my @Row = $DBObject->FetchrowArray() ) {
         $Self->{FollowUpOptionsList}->{ $Row[0] } = $Row[1];
     }
@@ -61,7 +61,7 @@ sub Configure {
 }
 
 sub ObjectList {
-    my ( $Self ) = @_;
+    my ($Self) = @_;
 
     return $Self->{DataObject}->QueueList();
 }
@@ -106,8 +106,6 @@ sub ObjectGet {
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

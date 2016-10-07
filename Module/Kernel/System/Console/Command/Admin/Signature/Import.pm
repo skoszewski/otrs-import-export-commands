@@ -24,8 +24,8 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::Signature';
-    $Self->{CacheType} = 'Signature';
+    $Self->{ObjectClass}   = 'Kernel::System::Signature';
+    $Self->{CacheType}     = 'Signature';
     $Self->{PropertyNames} = [
         "Name",
         "Text",
@@ -38,7 +38,7 @@ sub Configure {
 
     my %ReversedSignatureList = reverse $Self->{DataObject}->SignatureList( Valid => 0 );
     $Self->{ObjectList} = \%ReversedSignatureList;
-    
+
     return;
 }
 
@@ -53,16 +53,20 @@ sub ObjectGet {
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    if ( $ColumnName =~ m/^name$/i ) {                  # Name
+    if ( $ColumnName =~ m/^name$/i ) {    # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^content *type$/i ) {    # Content Type
+    }
+    elsif ( $ColumnName =~ m/^content *type$/i ) {    # Content Type
         return ( 'ContentType', $ColumnText || '' );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {            # Valid
-        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
+    }
+    elsif ( $ColumnName =~ m/^valid$/i ) {            # Valid
+        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText );
         return ( 'ValidID', $ValidID || 1 );
-    } elsif ( $ColumnName =~ m/^comment$/i ) {          # Comment
+    }
+    elsif ( $ColumnName =~ m/^comment$/i ) {          # Comment
         return ( 'Comment', $ColumnText || '' );
-    } elsif ( $ColumnName =~ m/^text$/i ) {             # Base64 encoded text
+    }
+    elsif ( $ColumnName =~ m/^text$/i ) {             # Base64 encoded text
         return ( 'Text', Encode::decode_utf8( decode_base64( $ColumnText || '' ) ) );
     }
 
@@ -72,18 +76,16 @@ sub ObjectProperty {
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->SignatureAdd( %NewObject );
+    return $Self->{DataObject}->SignatureAdd(%NewObject);
 }
 
 sub ObjectUpdate {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->SignatureUpdate( %NewObject );
+    return $Self->{DataObject}->SignatureUpdate(%NewObject);
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

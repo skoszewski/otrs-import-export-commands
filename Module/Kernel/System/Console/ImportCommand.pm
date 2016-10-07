@@ -83,7 +83,7 @@ The example implementation for C<Kernel::System::Group> can be found below:
 
         my %ReversedGroupList = reverse $Self->{DataObject}->GroupList( Valid => 0 );
         $Self->{ObjectList} = \%ReversedGroupList;
-        
+
         return;
     }
 
@@ -94,9 +94,9 @@ sub Configure {
 
     ( $Self->{ObjectName} = $Self->{ObjectClass} ) =~ s/^.*:://;
 
-    $Self->{DataObject} = $Kernel::OM->Get($Self->{ObjectClass});
+    $Self->{DataObject} = $Kernel::OM->Get( $Self->{ObjectClass} );
 
-    $Self->{ObjectIdName} = 'ID' if !$Self->{ObjectIdName}; 
+    $Self->{ObjectIdName} = 'ID' if !$Self->{ObjectIdName};
 
     $Self->Description("Imports $Self->{ObjectName}s from a CSV file.");
 
@@ -122,7 +122,8 @@ sub PreRun {
     # Check if the specified file exists.
     my $FileName = $Self->GetArgument('file');
 
-    if ( ! -e $FileName ) {
+    if ( !-e $FileName ) {
+
         # No? Abort then.
         die "File $FileName not found.\n";
     }
@@ -161,7 +162,7 @@ Example:
         if ( $ColumnName =~ m/^name$/i ) {          # Name
             return ( 'Name', $ColumnText );
         } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
-            my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
+            my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText );
             return ( 'ValidID', $ValidID || 1 );
         } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
             return ( 'Comment', $ColumnText || '' );
@@ -223,26 +224,26 @@ sub ObjectCompare {
     my ( $Self, $OldObject, $NewObject ) = @_;
 
     KEY:
-    foreach my $Key ( @{ $Self->{PropertyNames} } ) {
+    for my $Key ( @{ $Self->{PropertyNames} } ) {
 
         # objects are different if the key is missing in old or new object
-        return if ! exists $OldObject->{$Key} || ! exists $NewObject->{$Key};
+        return if !exists $OldObject->{$Key} || !exists $NewObject->{$Key};
 
         # also check for undef key values
-        return if ! defined $OldObject->{$Key} || ! defined $NewObject->{$Key};
+        return if !defined $OldObject->{$Key} || !defined $NewObject->{$Key};
 
         # continue if BOTH properties are empty or equal
         # that means '0' is equal to ''
         next KEY if !$OldObject->{$Key} && !$NewObject->{$Key};
-        
+
         # objects are different if only one property is false (zero or empty string)
         return if !$OldObject->{$Key} || !$NewObject->{$Key};
-        
+
         # return false if property values are different
         return if $OldObject->{$Key} ne $NewObject->{$Key};
     }
 
-    return 1;       # Objects are equal
+    return 1;    # Objects are equal
 }
 
 =item Run()
@@ -260,9 +261,9 @@ sub Run {
 
     my $CSV = Text::CSV->new(
         {
-            quote_char  => '"',
-            sep_char    => ',',
-            binary      => 1,
+            quote_char => '"',
+            sep_char   => ',',
+            binary     => 1,
         }
     );
 
@@ -273,11 +274,12 @@ sub Run {
     if ( my $HeaderRef = $CSV->getline($FileHandle) ) {
 
         ROW:
+
         # Go through the file, reading each group definition
         while ( my $ColRef = $CSV->getline($FileHandle) ) {
-            my @ColumnNames = @{ $HeaderRef };
-            my @Columns = @{ $ColRef };
-            my ($ColumnName, $ColumnText);
+            my @ColumnNames = @{$HeaderRef};
+            my @Columns     = @{$ColRef};
+            my ( $ColumnName, $ColumnText );
 
             my %NewObject = ();
 
@@ -292,35 +294,38 @@ sub Run {
                 $NewObject{$Key} = $Value || '';
             }
 
-            $NewObject{UserID} = 1;     # Add UserID which is mandatory in most calls.
+            $NewObject{UserID} = 1;    # Add UserID which is mandatory in most calls.
 
             # Skip to the next row if "Name" was not defined
             next ROW if !$NewObject{Name};
 
-            my ($Id, $Success);
-            
-            # check if object of the same name already exists
-            $Id = $Self->{ObjectList}->{$NewObject{Name}};
+            my ( $Id, $Success );
 
-            if ( $Id ) {
+            # check if object of the same name already exists
+            $Id = $Self->{ObjectList}->{ $NewObject{Name} };
+
+            if ($Id) {
+
                 # update object if alread exists
-                my %OldObject = $Self->ObjectGet( $Id );
+                my %OldObject = $Self->ObjectGet($Id);
                 if ( !$Self->ObjectCompare( \%OldObject, \%NewObject ) ) {
                     $NewObject{ $Self->{ObjectIdName} } = $Id;
-                    $Success = $Self->ObjectUpdate( %NewObject );
-                    
-                    if ( $Success ) {
-                       $Self->Print("Updated $Self->{ObjectName} <green>$NewObject{Name}</green>.\n"); 
-                    }
-                } else {
-                   $Self->Print("$Self->{ObjectName} <green>$NewObject{Name}</green> is up to date.\n"); 
-                   $Success = 1;
-                }
-            } else {
-                # add object a new object
-                $Success = $Self->ObjectAdd( %NewObject );
+                    $Success = $Self->ObjectUpdate(%NewObject);
 
-                if ( $Success ) {
+                    if ($Success) {
+                        $Self->Print("Updated $Self->{ObjectName} <green>$NewObject{Name}</green>.\n");
+                    }
+                }
+                else {
+                    $Self->Print("$Self->{ObjectName} <green>$NewObject{Name}</green> is up to date.\n");
+                    $Success = 1;
+                }
+            }
+            else {
+                # add object a new object
+                $Success = $Self->ObjectAdd(%NewObject);
+
+                if ($Success) {
                     $Self->Print("Added $Self->{ObjectName} \"$NewObject{Name}\".\n");
                 }
             }
@@ -334,27 +339,33 @@ sub Run {
     }
 
     if ( $Self->{CacheType} ) {
+
         # Delete cached objects before continuing
         my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
         my $CacheType = $Self->{CacheType};
 
-        if ( ! ref($CacheType) ) {
+        if ( !ref($CacheType) ) {
+
             # not a reference, a scalar
-            my @Temp = ( $CacheType );
+            my @Temp = ($CacheType);
             $CacheType = \@Temp;
-        } elsif ( ref($CacheType) eq 'SCALAR' ) {
+        }
+        elsif ( ref($CacheType) eq 'SCALAR' ) {
+
             # a reference to a scalar
-            my @Temp = ( $$CacheType );
+            my @Temp = ($$CacheType);
             $CacheType = \@Temp;
-        } elsif ( ref($CacheType) ne 'ARRAY' ) {
+        }
+        elsif ( ref($CacheType) ne 'ARRAY' ) {
+
             # not an array reference, stop with an error
             $Self->Print("<red>Internal error occured, unknown cache type!</red>");
             return $Self->ExitCodeError();
         }
 
         # clean specified cache types
-        foreach my $Type ( @$CacheType ) {
+        for my $Type (@$CacheType) {
             $Self->Print("<yellow>Deleting $Type cache...</yellow>\n");
 
             if ( !$CacheObject->CleanUp( Type => $Type ) ) {
@@ -381,4 +392,3 @@ the enclosed file COPYING for license information (AGPL). If you
 did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
-

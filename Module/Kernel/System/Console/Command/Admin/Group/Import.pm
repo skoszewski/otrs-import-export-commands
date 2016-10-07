@@ -21,8 +21,8 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::Group';
-    $Self->{CacheType} = 'Group';
+    $Self->{ObjectClass}   = 'Kernel::System::Group';
+    $Self->{CacheType}     = 'Group';
     $Self->{PropertyNames} = [
         "Name",
         "ValidID",
@@ -33,7 +33,7 @@ sub Configure {
 
     my %ReversedGroupList = reverse $Self->{DataObject}->GroupList( Valid => 0 );
     $Self->{ObjectList} = \%ReversedGroupList;
-    
+
     return;
 }
 
@@ -48,12 +48,14 @@ sub ObjectGet {
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    if ( $ColumnName =~ m/^name$/i ) {          # Name
+    if ( $ColumnName =~ m/^name$/i ) {    # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
-        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText ); 
+    }
+    elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
+        my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( Valid => $ColumnText );
         return ( 'ValidID', $ValidID || 1 );
-    } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
+    }
+    elsif ( $ColumnName =~ m/^comment$/i ) {    # Comment
         return ( 'Comment', $ColumnText || '' );
     }
 
@@ -63,18 +65,16 @@ sub ObjectProperty {
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->GroupAdd( %NewObject );
+    return $Self->{DataObject}->GroupAdd(%NewObject);
 }
 
 sub ObjectUpdate {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->GroupUpdate( %NewObject );
+    return $Self->{DataObject}->GroupUpdate(%NewObject);
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

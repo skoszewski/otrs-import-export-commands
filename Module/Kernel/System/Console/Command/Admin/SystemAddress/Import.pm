@@ -22,8 +22,8 @@ our @ObjectDependencies = (
 sub Configure {
     my ( $Self, %Param ) = @_;
 
-    $Self->{ObjectClass} = 'Kernel::System::SystemAddress';
-    $Self->{CacheType} = 'SystemAddress';
+    $Self->{ObjectClass}   = 'Kernel::System::SystemAddress';
+    $Self->{CacheType}     = 'SystemAddress';
     $Self->{PropertyNames} = [
         "Name",
         "Realname",
@@ -51,25 +51,29 @@ sub ObjectGet {
 sub ObjectProperty {
     my ( $Self, $ColumnName, $ColumnText ) = @_;
 
-    if ( $ColumnName =~ m/^name$/i ) {          # Name
+    if ( $ColumnName =~ m/^name$/i ) {    # Name
         return ( 'Name', $ColumnText );
-    } elsif ( $ColumnName =~ m/^realname$/i ) { # Realname
+    }
+    elsif ( $ColumnName =~ m/^realname$/i ) {    # Realname
         return ( 'Realname', $ColumnText );
-    } elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
-        my %ValidList = reverse $Kernel::OM->Get('Kernel::System::Valid')->ValidList(); 
-        my $ValidID = $ValidList{$ColumnText};
-        if (!$ValidID) {
+    }
+    elsif ( $ColumnName =~ m/^valid$/i ) {       # Valid
+        my %ValidList = reverse $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
+        my $ValidID   = $ValidList{$ColumnText};
+        if ( !$ValidID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid name.</red>\n");
         }
         return ( 'ValidID', $ValidID || 1 );
-    } elsif ( $ColumnName =~ m/^queue$/i ) {    # Queue
+    }
+    elsif ( $ColumnName =~ m/^queue$/i ) {       # Queue
         my %QueueList = reverse $Kernel::OM->Get('Kernel::System::Queue')->QueueList();
-        my $QueueID = $QueueList{$ColumnText};
-        if (!$QueueID) {
+        my $QueueID   = $QueueList{$ColumnText};
+        if ( !$QueueID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Queue name.</red>\n");
         }
         return ( 'QueueID', $QueueID || 1 );
-    } elsif ( $ColumnName =~ m/^comment$/i ) {  # Comment
+    }
+    elsif ( $ColumnName =~ m/^comment$/i ) {     # Comment
         return ( 'Comment', $ColumnText || '' );
     }
 
@@ -79,18 +83,16 @@ sub ObjectProperty {
 sub ObjectAdd {
     my ( $Self, %NewObject ) = @_;
 
-    return $Self->{DataObject}->SystemAddressAdd( %NewObject );
+    return $Self->{DataObject}->SystemAddressAdd(%NewObject);
 }
 
 sub ObjectUpdate {
     my ( $Self, %UpdatedObject ) = @_;
 
-    return $Self->{DataObject}->SystemAddressUpdate( %UpdatedObject );
+    return $Self->{DataObject}->SystemAddressUpdate(%UpdatedObject);
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

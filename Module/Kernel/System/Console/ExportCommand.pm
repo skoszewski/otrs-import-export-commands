@@ -53,7 +53,7 @@ sub Configure {
 
     ( $Self->{ObjectName} = $Self->{ObjectClass} ) =~ s/^.*:://;
 
-    $Self->{DataObject} = $Kernel::OM->Get($Self->{ObjectClass});
+    $Self->{DataObject} = $Kernel::OM->Get( $Self->{ObjectClass} );
 
     $Self->Description("Exports all $Self->{ObjectName}s to a CSV file.");
 
@@ -90,8 +90,8 @@ sub Run {
 
     $Self->Print("<yellow>Export starting...</yellow>\n");
 
-    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
-    my $CSVObject   = $Kernel::OM->Get('Kernel::System::CSV');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+    my $CSVObject = $Kernel::OM->Get('Kernel::System::CSV');
 
     my @Data;
     my %Objects = $Self->ObjectList();
@@ -100,35 +100,37 @@ sub Run {
     my %ReversedList = reverse %Objects;
     my @ObjectIds;
 
-    foreach ( sort { lc $a cmp lc $b } keys %ReversedList ) {
+    for ( sort { lc $a cmp lc $b } keys %ReversedList ) {
         push @ObjectIds, $ReversedList{$_};
     }
 
-    foreach my $Id ( @ObjectIds ) {
+    for my $Id (@ObjectIds) {
 
-        my $ObjectData = $Self->ObjectGet( $Id );
+        my $ObjectData = $Self->ObjectGet($Id);
 
         $Self->Print("$Self->{ObjectName}: <green>@$ObjectData[0]</green>\n");
-        
+
         push @Data, $ObjectData;
     }
 
     open my $FileHandle, ">:encoding(utf8)", $Self->GetArgument('file') || return $Self->ExitCodeError();
 
-    my ($ExitCode, $ExitText);
+    my ( $ExitCode, $ExitText );
 
     if (
         print $FileHandle $CSVObject->Array2CSV(
-            Head       => $Self->{ColumnNames},
-            Data       => \@Data,
-            Separator  => ',',
-            Quote      => '"',
-            Format     => 'CSV',
+            Head      => $Self->{ColumnNames},
+            Data      => \@Data,
+            Separator => ',',
+            Quote     => '"',
+            Format    => 'CSV',
         )
-    ) {
+        )
+    {
         $ExitText = "<green>Done.</green>\n";
         $ExitCode = $Self->ExitCodeOk();
-    } else {
+    }
+    else {
         $ExitText = "<red>Cannot write output file, check filename and permissions!</red>\n";
         $ExitCode = $Self->ExitCodeError();
     }
@@ -153,4 +155,3 @@ the enclosed file COPYING for license information (AGPL). If you
 did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
-
