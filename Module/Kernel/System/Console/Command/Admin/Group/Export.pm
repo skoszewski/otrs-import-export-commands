@@ -15,6 +15,7 @@ use base qw(Kernel::System::Console::ExportCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::Group',
+    'Kernel::System::Valid',
 );
 
 sub Configure {

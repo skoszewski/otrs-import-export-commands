@@ -17,8 +17,8 @@ use Encode;
 use base qw(Kernel::System::Console::ImportCommand);
 
 our @ObjectDependencies = (
-    'Kernel::System::Valid',
     'Kernel::System::Signature',
+    'Kernel::System::Valid',
 );
 
 sub Configure {

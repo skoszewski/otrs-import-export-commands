@@ -16,7 +16,6 @@ use base qw(Kernel::System::Console::BaseCommand);
 our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::CSV',
-    'Kernel::System::Valid',
 );
 
 =head1 NAME

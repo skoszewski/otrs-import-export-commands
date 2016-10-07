@@ -15,6 +15,11 @@ use base qw(Kernel::System::Console::ExportCommand);
 
 our @ObjectDependencies = (
     'Kernel::System::Queue',
+    'Kernel::System::Valid',
+    'Kernel::System::Group',
+    'Kernel::System::SystemAddress',
+    'Kernel::System::Salutation',
+    'Kernel::System::Signature',
     'Kernel::System::DB',
 );
 

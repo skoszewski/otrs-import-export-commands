@@ -14,8 +14,9 @@ use warnings;
 use base qw(Kernel::System::Console::ImportCommand);
 
 our @ObjectDependencies = (
-    'Kernel::System::Valid',
     'Kernel::System::SystemAddress',
+    'Kernel::System::Queue',
+    'Kernel::System::Valid',
 );
 
 sub Configure {
