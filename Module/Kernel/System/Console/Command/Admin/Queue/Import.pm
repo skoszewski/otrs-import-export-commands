@@ -34,13 +34,18 @@ sub Configure {
         "GroupID",
         "Calendar",
         "FirstResponseTime",
+        "FirstResponseNotify",
         "UpdateTime",
+        "UpdateNotify",
         "SolutionTime",
+        "SolutionNotify",
         "UnlockTimeout",
+        "FollowUpID",
+        "FollowUpLock",
+        "DefaultSignKey",
         "SystemAddressID",
         "SalutationID",
         "SignatureID",
-        "FollowUpID",
         "Comment",
     ];
 
@@ -88,93 +93,84 @@ sub ObjectProperty {
         return ( 'Name', $ColumnText );
     }
     elsif ( $ColumnName =~ m/^valid$/i ) {    # Valid
-
         my %ValidList = reverse $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
         my $ValidID   = $ValidList{$ColumnText};
         if ( !$ValidID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid name.</red>\n");
         }
         return ( 'ValidID', $ValidID || 1 );
-
     }
     elsif ( $ColumnName =~ m/^group$/i ) {    # Group
-
         my %GroupList = reverse $Kernel::OM->Get('Kernel::System::Group')->GroupList();
         my $GroupID   = $GroupList{$ColumnText};
         if ( !$GroupID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Group name.</red>\n");
         }
         return ( 'GroupID', $GroupID || 1 );
-
     }
     elsif ( $ColumnName =~ m/^calendar$/i ) {    # Calendar
-
         return ( 'Calendar', $ColumnText || '' );
-
     }
     elsif ( $ColumnName =~ m/^first *response *time$/i ) {    # First Response Time
-
         return ( 'FirstResponseTime', $ColumnText || '' );
-
+    }
+    elsif ( $ColumnName =~ m/^first *response *notify$/i ) {  # First Response Notify
+        return ( 'FirstResponseNotify', $ColumnText || '' );
     }
     elsif ( $ColumnName =~ m/^update *time$/i ) {             # Update Time
-
         return ( 'UpdateTime', $ColumnText || '' );
-
+    }
+    elsif ( $ColumnName =~ m/^update *notify$/i ) {             # Update Notify
+        return ( 'UpdateNotify', $ColumnText || '' );
     }
     elsif ( $ColumnName =~ m/^solution *time$/i ) {           # Solution Time
-
         return ( 'SolutionTime', $ColumnText || '' );
-
+    }
+    elsif ( $ColumnName =~ m/^solution *notify$/i ) {           # Solution Notify
+        return ( 'SolutionNotify', $ColumnText || '' );
     }
     elsif ( $ColumnName =~ m/^unlock *timeout$/i ) {          # Unlock Timeout
-
         return ( 'UnlockTimeout', $ColumnText || '' );
-
+    }
+    elsif ( $ColumnName =~ m/^follow *up$/i ) {               # Follow Up
+        my $FollowUpID = $Self->{FollowUpOptionsList}->{$ColumnText};
+        if ( !$FollowUpID ) {
+            $Self->Print("<red>\"$ColumnText\" is not a valid follow up option name.</red>\n");
+        }
+        return ( 'FollowUpID', $FollowUpID || 1 );
+    }
+    elsif ( $ColumnName =~ m/^follow *up *lock$/i ) {  # Follow Up Lock
+        return ( 'FollowUpLock', $ColumnText && $ColumnText eq 'yes' ? 1 : 0 );
+    }
+    elsif ( $ColumnName =~ m/^default *sign *key$/i ) {     # Default Sign Key
+        return ( 'DefaultSignKey', $ColumnText || '' );
     }
     elsif ( $ColumnName =~ m/^system *address$/i ) {          # SystemAddress
-
         my %SystemAddressList = reverse $Kernel::OM->Get('Kernel::System::SystemAddress')->SystemAddressList();
         my $SystemAddressID   = $SystemAddressList{$ColumnText};
         if ( !$SystemAddressID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid SystemAddress name.</red>\n");
         }
         return ( 'SystemAddressID', $SystemAddressID || 1 );
-
     }
     elsif ( $ColumnName =~ m/^salutation$/i ) {               # Salutation
-
         my %SalutationList = reverse $Kernel::OM->Get('Kernel::System::Salutation')->SalutationList();
         my $SalutationID   = $SalutationList{$ColumnText};
         if ( !$SalutationID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Salutation name.</red>\n");
         }
         return ( 'SalutationID', $SalutationID || 1 );
-
     }
     elsif ( $ColumnName =~ m/^signature$/i ) {                # Signature
-
         my %SignatureList = reverse $Kernel::OM->Get('Kernel::System::Signature')->SignatureList();
         my $SignatureID   = $SignatureList{$ColumnText};
         if ( !$SignatureID ) {
             $Self->Print("<red>\"$ColumnText\" is not a valid Signature name.</red>\n");
         }
         return ( 'SignatureID', $SignatureID || 1 );
-
-    }
-    elsif ( $ColumnName =~ m/^follow *up$/i ) {               # Follow Up
-
-        my $FollowUpID = $Self->{FollowUpOptionsList}->{$ColumnText};
-        if ( !$FollowUpID ) {
-            $Self->Print("<red>\"$ColumnText\" is not a valid follow up option name.</red>\n");
-        }
-        return ( 'FollowUpID', $FollowUpID || 1 );
-
     }
     elsif ( $ColumnName =~ m/^comment$/i ) {                  # Comment
-
         return ( 'Comment', $ColumnText || '' );
-
     }
     else {
         $Self->Print("<red>Unknown column name found: \"$ColumnName\".</red>\n");
