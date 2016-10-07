@@ -13,9 +13,9 @@ if [ -z "$CONSOLE" ]; then
 fi
 
 # Check operation
-if [ "$1" == "-e" ]; then
+if [ "$1" = "-e" ]; then
     OPERATION="Export"
-elif [ "$1" == "-i" ]; then
+elif [ "$1" = "-i" ]; then
     OPERATION="Import"
 else
     echo "Specify either -e (export) or -i (import) parameter."
